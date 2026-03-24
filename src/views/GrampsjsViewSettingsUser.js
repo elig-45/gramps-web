@@ -280,6 +280,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
   }
 
   _getTreeNameDisplayFormat() {
+    // Prefer any already-set chart name format; fallback to the shared default.
     return (
       this.appState.settings.treeChartNameDisplayFormat ??
       this.appState.settings.descendantChartNameDisplayFormat ??
@@ -318,6 +319,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
     const value = validFormats.includes(candidate)
       ? candidate
       : DEFAULT_NAME_DISPLAY_FORMAT
+    // Keep the name display format consistent across all tree chart variants.
     this.appState.updateSettings(
       {
         treeChartNameDisplayFormat: value,
@@ -326,7 +328,7 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
         relationshipChartNameDisplayFormat: value,
         fanChartNameDisplayFormat: value,
       },
-      false
+      false // store as tree-independent user preference
     )
   }
 

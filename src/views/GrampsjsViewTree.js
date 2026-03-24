@@ -282,11 +282,11 @@ export class GrampsjsViewTree extends GrampsjsView {
     }
   }
 
-  _setPreferredTab(preventOverride = false) {
+  _setPreferredTab(preserveUserSelection = false) {
     const preferredView =
       this.appState?.settings?.treeDefaultView ?? DEFAULT_TREE_VIEW
     const preferredIndex = getTreeViewTabIndex(preferredView)
-    if (preventOverride && this._tabChangedByUser) {
+    if (preserveUserSelection && this._tabChangedByUser) {
       return
     }
     if (this._currentTabId !== preferredIndex) {
