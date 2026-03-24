@@ -17,8 +17,15 @@ import {GrampsjsView} from './GrampsjsView.js'
 
 import {mdiCheck, mdiContentCopy} from '@mdi/js'
 import {__APIHOST__} from '../api.js'
-import {fireEvent} from '../util.js'
+import {fireEvent, chartNameDisplayFormat} from '../util.js'
 import {applyTheme} from '../theme.js'
+import {
+  DEFAULT_NAME_DISPLAY_FORMAT,
+  DEFAULT_RELATIONSHIP_DEGREE,
+  DEFAULT_RELATIONSHIP_MAX_IMAGES,
+  DEFAULT_TREE_VIEW,
+  TREE_VIEWS,
+} from '../treeDefaults.js'
 
 export class GrampsjsViewSettingsUser extends GrampsjsView {
   static get styles() {
@@ -29,6 +36,18 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
           display: flex;
           align-items: center;
           gap: 8px;
+        }
+
+        .tree-preferences {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          gap: 12px 24px;
+          align-items: start;
+        }
+
+        .tree-preferences md-filled-select,
+        .tree-preferences md-outlined-text-field {
+          width: 100%;
         }
       `,
     ]
@@ -81,6 +100,8 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
       <h3>${this._('Change password')}</h3>
 
       ${this.renderChangePw()}
+      <h3>${this._('Family Tree preferences')}</h3>
+      ${this.renderTreePreferences()}
       ${this._apiVersionAtLeast(3, 8)
         ? html`
             <h3>${this._('Developer Tools')}</h3>
@@ -177,6 +198,136 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
     const theme = event.target.value
     this.appState.updateSettings({theme})
     applyTheme(theme)
+  }
+
+  renderTreePreferences() {
+    const defaultView =
+      this.appState.settings.treeDefaultView ?? DEFAULT_TREE_VIEW
+    const maxSeparation =
+      this.appState.settings.relationshipChartAnc ??
+      DEFAULT_RELATIONSHIP_DEGREE
+    const maxImages =
+      this.appState.settings.relationshipChartMaxImages ??
+      DEFAULT_RELATIONSHIP_MAX_IMAGES
+    const nameFormat = this._getTreeNameDisplayFormat()
+    return html`
+      <div class="tree-preferences">
+        <md-filled-select
+          id="tree-default-view"
+          label="${this._('Default Family Tree view')}"
+          @change=${this._handleDefaultTreeViewChange}
+        >
+          ${TREE_VIEWS.map(
+            view => html`
+              <md-select-option
+                value="${view}"
+                ?selected=${view === defaultView}
+              >
+                ${this._(this._treeViewLabel(view))}
+              </md-select-option>
+            `
+          )}
+        </md-filled-select>
+        <md-outlined-text-field
+          id="tree-max-separation"
+          type="number"
+          min="0"
+          label="${this._('Max Degree of Separation')}"
+          value="${maxSeparation}"
+          @change=${this._handleMaxSeparationChange}
+        ></md-outlined-text-field>
+        <md-outlined-text-field
+          id="tree-max-images"
+          type="number"
+          min="0"
+          label="${this._('Max Number of Images displayed')}"
+          value="${maxImages}"
+          @change=${this._handleMaxImagesChange}
+        ></md-outlined-text-field>
+        <md-filled-select
+          id="tree-name-format"
+          label="${this._('Name Display Format')}"
+          @change=${this._handleNameDisplayFormatChange}
+        >
+          ${Object.values(chartNameDisplayFormat).map(
+            format => html`
+              <md-select-option
+                value="${format}"
+                ?selected=${format === nameFormat}
+              >
+                ${this._(format)}
+              </md-select-option>
+            `
+          )}
+        </md-filled-select>
+      </div>
+    `
+  }
+
+  _treeViewLabel(view) {
+    switch (view) {
+      case 'descendant':
+        return 'Descendant Tree'
+      case 'hourglass':
+        return 'Hourglass Graph'
+      case 'relationship':
+        return 'Relationship Graph'
+      case 'fan':
+        return 'Fan Chart'
+      default:
+        return 'Ancestor Tree'
+    }
+  }
+
+  _getTreeNameDisplayFormat() {
+    return (
+      this.appState.settings.treeChartNameDisplayFormat ??
+      this.appState.settings.descendantChartNameDisplayFormat ??
+      this.appState.settings.hourglassChartNameDisplayFormat ??
+      this.appState.settings.relationshipChartNameDisplayFormat ??
+      this.appState.settings.fanChartNameDisplayFormat ??
+      DEFAULT_NAME_DISPLAY_FORMAT
+    )
+  }
+
+  _handleDefaultTreeViewChange(event) {
+    const candidate = event.target.value || DEFAULT_TREE_VIEW
+    const view = TREE_VIEWS.includes(candidate) ? candidate : DEFAULT_TREE_VIEW
+    this.appState.updateSettings({treeDefaultView: view})
+  }
+
+  _handleMaxSeparationChange(event) {
+    const value = Math.max(0, parseInt(event.target.value, 10))
+    if (Number.isNaN(value)) {
+      return
+    }
+    this.appState.updateSettings({relationshipChartAnc: value})
+  }
+
+  _handleMaxImagesChange(event) {
+    const value = Math.max(0, parseInt(event.target.value, 10))
+    if (Number.isNaN(value)) {
+      return
+    }
+    this.appState.updateSettings({relationshipChartMaxImages: value})
+  }
+
+  _handleNameDisplayFormatChange(event) {
+    const candidate = event.target.value || DEFAULT_NAME_DISPLAY_FORMAT
+    const validFormats = Object.values(chartNameDisplayFormat)
+    const value = validFormats.includes(candidate)
+      ? candidate
+      : DEFAULT_NAME_DISPLAY_FORMAT
+    this.appState.updateSettings(
+      {
+        treeChartNameDisplayFormat: value,
+        descendantChartNameDisplayFormat: value,
+        hourglassChartNameDisplayFormat: value,
+        relationshipChartNameDisplayFormat: value,
+        fanChartNameDisplayFormat: value,
+      },
+      false
+    )
   }
 
   renderChangeEmail() {
