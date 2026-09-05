@@ -54,9 +54,11 @@ describe('anniversary ICS subscription settings', () => {
 
   it('is included when the anniversary ICS API is supported', () => {
     const view = createSettingsView()
+    const content = templateText(view.renderContent())
 
-    expect(templateText(view.renderContent())).to.contain(
-      'Anniversary calendar (ICS)'
+    expect(content).to.contain('Anniversary calendar (ICS)')
+    expect(content.indexOf('Anniversary calendar (ICS)')).to.be.greaterThan(
+      content.indexOf('Appearance')
     )
   })
 

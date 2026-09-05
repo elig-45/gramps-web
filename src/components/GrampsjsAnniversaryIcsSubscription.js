@@ -117,7 +117,9 @@ export class GrampsjsAnniversaryIcsSubscription extends GrampsjsAppStateMixin(
         </md-outlined-button>
       </p>
       <p class="status">
-        ${this._('Manage or revoke this subscription in Access tokens.')}
+        ${this._(
+          'Manage or revoke this subscription in the Access tokens section under Account.'
+        )}
       </p>
       ${this._errorMessage
         ? html` <p class="error" role="alert">${this._errorMessage}</p> `
@@ -142,7 +144,9 @@ export class GrampsjsAnniversaryIcsSubscription extends GrampsjsAppStateMixin(
       case 'inactive':
         return this._('No active subscription link.')
       case 'unavailable':
-        return this._('Token status unavailable. Retry in Access tokens.')
+        return this._(
+          'Token status unavailable. Retry in the Access tokens section under Account.'
+        )
       default:
         return this._('Loading...')
     }

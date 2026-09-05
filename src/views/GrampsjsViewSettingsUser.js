@@ -173,6 +173,18 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
           : ''}
       </grampsjs-collapsible-section>
 
+      <grampsjs-collapsible-section
+        title="${this._('Appearance')}"
+        description="${this._('Display preferences saved on this device')}"
+      >
+        <h3>${this._('Select language')}</h3>
+        ${this.renderLangSelect()}
+        <h3>${this._('Select theme')}</h3>
+        ${this.renderThemeSelect()}
+        <h3>${this._('Family tree preferences')}</h3>
+        ${this.renderTreePreferences()}
+      </grampsjs-collapsible-section>
+
       ${this._supportsAnniversaryIcs()
         ? html`
             <grampsjs-collapsible-section
@@ -190,18 +202,6 @@ export class GrampsjsViewSettingsUser extends GrampsjsView {
             </grampsjs-collapsible-section>
           `
         : ''}
-
-      <grampsjs-collapsible-section
-        title="${this._('Appearance')}"
-        description="${this._('Display preferences saved on this device')}"
-      >
-        <h3>${this._('Select language')}</h3>
-        ${this.renderLangSelect()}
-        <h3>${this._('Select theme')}</h3>
-        ${this.renderThemeSelect()}
-        <h3>${this._('Family tree preferences')}</h3>
-        ${this.renderTreePreferences()}
-      </grampsjs-collapsible-section>
 
       <grampsjs-collapsible-section
         title="${this._('Developer Tools')}"
